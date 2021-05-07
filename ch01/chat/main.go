@@ -47,3 +47,35 @@ func main() {
 	log.Println("Starting web server on", *addr)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
+
+/*
+$ go run .
+2021/05/07 15:15:09 Starting web server on localhost:8080
+
+## open first tab to localhost:8080
+templateHandler: ServeHTTP called
+room: ServeHTTP called
+New client joined:  &{0xc0001389a0 0xc000068720 0xc00007ed50}
+templateHandler: ServeHTTP called
+
+## open second tab to localhost:8080
+templateHandler: ServeHTTP called
+room: ServeHTTP called
+New client joined:  &{0xc0000ac160 0xc00008e120 0xc00007ed50}
+templateHandler: ServeHTTP called
+
+## send message from first tab
+Message received:  hello from client1
+ -- sent to client:  &{0xc0001389a0 0xc000068720 0xc00007ed50}
+ -- sent to client:  &{0xc0000ac160 0xc00008e120 0xc00007ed50}
+
+## send message from second tab
+Message received:  hello from client2
+ -- sent to client:  &{0xc0001389a0 0xc000068720 0xc00007ed50}
+ -- sent to client:  &{0xc0000ac160 0xc00008e120 0xc00007ed50}
+
+## open third tab to localhost:8080/room
+room: ServeHTTP called
+room: ServeHTTP: websocket: the client is not using the websocket protocol: 'upgrade' token not found in 'Connection' header
+templateHandler: ServeHTTP called
+*/

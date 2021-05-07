@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -76,7 +75,7 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("room: ServeHTTP called")
 	socket, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
-		log.Fatal("room: ServeHTTP:", err)
+		r.tracer.Trace("room: ServeHTTP:", err)
 		return
 	}
 	client := &client{
