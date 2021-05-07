@@ -2,14 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"sync"
 	"text/template"
-
-	"main/trace"
 )
 
 // templ represents a single template
@@ -25,6 +23,7 @@ type templateHandler struct {
 // An alternative would be some initialization code from main goroutine
 // which would compile template once (NewTemplateHandler function or alike).
 func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("templateHandler: ServeHTTP called")
 	t.once.Do(func() {
 		t.templ = template.Must(template.ParseFiles(filepath.Join("templates", t.filename)))
 	})
@@ -35,11 +34,11 @@ func main() {
 	var addr = flag.String("addr", "localhost:8080", "The addr of the application.")
 	flag.Parse() // parse the flags
 
+	// create a room instance
 	r := newRoom()
-	r.tracer = trace.New(os.Stdout)
 
 	http.Handle("/", &templateHandler{filename: "chat.html"})
-	http.Handle("/room", r)
+	http.Handle("/room", r) // called from javascript code when creating socket
 
 	// get the room going
 	go r.run()
