@@ -5,6 +5,22 @@ import (
 	"io"
 )
 
+// tracer is a type that writes to an io.Writer interface
+type tracer struct {
+	out io.Writer
+}
+
+// Trace writes the arguments to tracer's io.Writer interface
+func (t *tracer) Trace(a ...interface{}) {
+	fmt.Fprintln(t.out, a...)
+}
+
+// nilTracer
+type nilTracer struct{}
+
+// Trace for a nilTracer does nothing.
+func (t *nilTracer) Trace(a ...interface{}) {}
+
 // Tracer is the interface that describes an object capable of
 // tracing events throughout code.
 type Tracer interface {
@@ -12,28 +28,10 @@ type Tracer interface {
 }
 
 // New creates a new Tracer that will write the output to
-// the specified io.Writer.
+// the specified io.Writer interface
 func New(w io.Writer) Tracer {
 	return &tracer{out: w}
 }
-
-// tracer is a Tracer that writes to an
-// io.Writer.
-type tracer struct {
-	out io.Writer
-}
-
-// Trace writes the arguments to this Tracers io.Writer.
-func (t *tracer) Trace(a ...interface{}) {
-	fmt.Fprint(t.out, a...)
-	fmt.Fprintln(t.out)
-}
-
-// nilTracer
-type nilTracer struct{}
-
-// Trace for a nil tracer does nothing.
-func (t *nilTracer) Trace(a ...interface{}) {}
 
 // Off creates a Tracer that will ignore calls to Trace.
 func Off() Tracer {
