@@ -36,11 +36,30 @@ func MustAuth(handler http.Handler) http.Handler {
 	return &authHandler{next: handler}
 }
 
+// ignoreEmpty returns non-empty slice elements
+func ignoreEmpty(s []string) []string {
+	var r []string
+	for _, str := range s {
+		if str != "" {
+			r = append(r, str)
+		}
+	}
+	return r
+}
+
 // loginHandler handles the third-party login process.
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	segs := strings.Split(r.URL.Path, "/")
-	action := segs[2]
-	provider := segs[3]
+	fmt.Println("loginHandler: called")
+	segs := ignoreEmpty(strings.Split(strings.TrimSpace(r.URL.Path), "/"))
+	fmt.Println("segs: ", segs, len(segs))
+
+	// bail early if there is not enough params
+	if len(segs) < 3 {
+		return
+	}
+
+	action := segs[1]
+	provider := segs[2]
 	switch action {
 	case "login":
 
