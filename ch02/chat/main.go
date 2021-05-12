@@ -83,9 +83,9 @@ func main() {
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 
-	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
+	http.Handle("/chat", MustLogin(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
-	http.HandleFunc("/auth/", loginHandler)
+	http.HandleFunc("/auth/", authHandler)
 	http.Handle("/room", r)
 
 	// get the room going

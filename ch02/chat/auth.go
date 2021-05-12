@@ -9,12 +9,13 @@ import (
 	"github.com/stretchr/objx"
 )
 
-type authHandler struct {
-	next http.Handler
+// loginHandler holds our login methods
+type loginHandler struct {
+	next http.Handler // next holds original handler
 }
 
-func (h *authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("authHandler: ServeHTTP called")
+func (h *loginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("loginHandler: ServeHTTP called")
 	_, err := r.Cookie("auth")
 	if err == http.ErrNoCookie {
 		// not authenticated
@@ -27,13 +28,13 @@ func (h *authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// success - call the next handler
-	h.next.ServeHTTP(w, r)
+
+	h.next.ServeHTTP(w, r) // call the original handler
 }
 
-// MustAuth adapts handler to ensure authentication has occurred.
-func MustAuth(handler http.Handler) http.Handler {
-	return &authHandler{next: handler}
+// MustLogin adapts handler to ensure authentication has occurred.
+func MustLogin(handler http.Handler) http.Handler {
+	return &loginHandler{next: handler}
 }
 
 // ignoreEmpty returns non-empty slice elements
@@ -47,9 +48,10 @@ func ignoreEmpty(s []string) []string {
 	return r
 }
 
-// loginHandler handles the third-party login process.
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("loginHandler: called")
+// authHandler handles the third-party login process
+// format: /auth/{action}/{provider}
+func authHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("authHandler: called")
 	segs := ignoreEmpty(strings.Split(strings.TrimSpace(r.URL.Path), "/"))
 	fmt.Println("segs: ", segs, len(segs))
 
