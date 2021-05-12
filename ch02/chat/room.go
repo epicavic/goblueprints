@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -73,9 +74,10 @@ const (
 var upgrader = &websocket.Upgrader{ReadBufferSize: socketBufferSize, WriteBufferSize: socketBufferSize}
 
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("room: ServeHTTP called")
 	socket, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
-		log.Fatal("ServeHTTP:", err)
+		log.Println("ServeHTTP:", err)
 		return
 	}
 

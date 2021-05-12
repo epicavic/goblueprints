@@ -14,6 +14,7 @@ type authHandler struct {
 }
 
 func (h *authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("authHandler: ServeHTTP called")
 	_, err := r.Cookie("auth")
 	if err == http.ErrNoCookie {
 		// not authenticated
