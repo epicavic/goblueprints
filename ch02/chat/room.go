@@ -73,15 +73,15 @@ const (
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: socketBufferSize, WriteBufferSize: socketBufferSize}
 
-func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("room: ServeHTTP called")
-	socket, err := upgrader.Upgrade(w, req, nil)
+func (rm *room) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("room: ServeHTTP called", r.URL.RequestURI())
+	socket, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("ServeHTTP:", err)
 		return
 	}
 
-	authCookie, err := req.Cookie("auth")
+	authCookie, err := r.Cookie("auth")
 	if err != nil {
 		log.Fatal("Failed to get auth cookie:", err)
 		return
@@ -89,11 +89,11 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	client := &client{
 		socket:   socket,
 		send:     make(chan *message, messageBufferSize),
-		room:     r,
+		room:     rm,
 		userData: objx.MustFromBase64(authCookie.Value),
 	}
-	r.join <- client
-	defer func() { r.leave <- client }()
+	rm.join <- client
+	defer func() { rm.leave <- client }()
 	go client.write()
 	client.read()
 }

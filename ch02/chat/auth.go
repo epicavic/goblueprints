@@ -15,7 +15,7 @@ type loginHandler struct {
 }
 
 func (h *loginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("loginHandler: ServeHTTP called")
+	fmt.Println("loginHandler: ServeHTTP called", r.URL.RequestURI())
 	_, err := r.Cookie("auth")
 	if err == http.ErrNoCookie {
 		// not authenticated
@@ -51,7 +51,7 @@ func ignoreEmpty(s []string) []string {
 // authHandler handles the third-party login process
 // format: /auth/{action}/{provider}
 func authHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("authHandler: called")
+	fmt.Println("authHandler: called", r.URL.RequestURI())
 	segs := ignoreEmpty(strings.Split(strings.TrimSpace(r.URL.Path), "/"))
 	fmt.Println("segs: ", segs, len(segs))
 
@@ -62,9 +62,9 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 
 	action := segs[1]
 	provider := segs[2]
+
 	switch action {
 	case "login":
-
 		provider, err := gomniauth.Provider(provider)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error when trying to get provider %s: %s", provider, err), http.StatusBadRequest)
@@ -81,7 +81,6 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTemporaryRedirect)
 
 	case "callback":
-
 		provider, err := gomniauth.Provider(provider)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error when trying to get provider %s: %s", provider, err), http.StatusBadRequest)
